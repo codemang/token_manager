@@ -9,7 +9,28 @@ module TokenManager
   TOKEN_FILE = File.join(TOKEN_DIR, '.access_tokens')
 
   def execute(*args)
-    send(args[0], *args[1..-1])
+    if args[0].nil?
+      print_help_message
+    else
+      begin
+        send(args[0], *args[1..-1])
+      rescue NoMethodError => e
+        puts "Command line option '#{args[0]}' is not recognized"
+        print_help_message
+      rescue ArgumentError
+        if args[0] == 'add'
+          puts 'ERROR: You must supply the name of the token and the value of the token you want to add. For example...'
+          puts '$ token_manager add token_name token_value'
+        elsif args[0] == 'remove'
+          puts 'ERROR: You must supply the name of the token you want to remove. For example...'
+          puts '$ token_manager remove token_name'
+        elsif args[0] == 'list'
+        elsif args[0] == 'read'
+          puts 'ERROR: You must supply the name of the token you want to read. For example...'
+          puts '$ token_manager read token_name'
+        end
+      end
+    end
   end
 
   private
@@ -68,6 +89,14 @@ module TokenManager
       tokens = File.read(TOKEN_FILE)
       tokens.empty? ? {} : JSON.parse(tokens)
     end
+  end
+
+  def print_help_message
+    puts 'You must supply one of the following command line options'
+    puts '* add'
+    puts '* remove'
+    puts '* read'
+    puts '* list'
   end
 
   def prep_token_file
